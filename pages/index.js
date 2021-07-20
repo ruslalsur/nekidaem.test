@@ -18,10 +18,10 @@ export default function Home() {
   const [cards3, setCards3] = useState([]);
 
   useEffect(() => {
-    setCards0(cards?.filter((item) => item.row === '0'));
-    setCards1(cards?.filter((item) => item.row === '1'));
-    setCards2(cards?.filter((item) => item.row === '2'));
-    setCards3(cards?.filter((item) => item.row === '3'));
+    setCards0(cards?.filter((item) => item?.row === '0'));
+    setCards1(cards?.filter((item) => item?.row === '1'));
+    setCards2(cards?.filter((item) => item?.row === '2'));
+    setCards3(cards?.filter((item) => item?.row === '3'));
   }, [cards]);
 
   const onDragEnd = (result) => {

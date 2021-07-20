@@ -1,10 +1,11 @@
-import { Container, Flex, Box } from '@chakra-ui/react';
+import { Container, Flex, Box, useToast } from '@chakra-ui/react';
 import { AppContext } from '../context/AppContext';
 import { useContext } from 'react';
 import Navbar from './Navbar';
 
 export default function Layout({ children }) {
   const { isAuthenticated, logout } = useContext(AppContext);
+
   return (
     <>
       {isAuthenticated && <Navbar />}

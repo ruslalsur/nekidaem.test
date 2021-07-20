@@ -1,6 +1,7 @@
 import { ChakraProvider } from '@chakra-ui/react';
 import { AppContext } from '../context/AppContext';
 import { useApi } from '../hooks/useApi';
+import { useMessage } from '../hooks/useMessage';
 import Layout from '../components/Layout';
 import '../styles/globals.css';
 
@@ -19,6 +20,8 @@ function MyApp({ Component, pageProps }) {
     updateCard,
     addCard,
   } = useApi();
+
+  const { message } = useMessage();
 
   let isAuthenticated = false;
   const hasToken = !!token;
@@ -39,6 +42,7 @@ function MyApp({ Component, pageProps }) {
           token,
           tokenReady,
           loading,
+          message,
           createAccount,
           login,
           logout,

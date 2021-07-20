@@ -6,7 +6,7 @@ import { API_BASE_URL } from '../constants';
 
 export const useApi = () => {
   const router = useRouter();
-  const [token, setToken] = useState(null);
+  const [token, setToken] = useState('');
   const [tokenReady, setTokenReady] = useState(false);
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -50,10 +50,11 @@ export const useApi = () => {
     setLoading(true);
 
     try {
-      const { data } = await axios(config);
+      const response = await axios(config);
 
       setLoading(false);
-      return data;
+
+      return response.data;
     } catch (err) {
       setLoading(false);
       console.log(err.message || `request error`);
@@ -72,8 +73,8 @@ export const useApi = () => {
         },
       });
 
-      setToken(data.token || null);
-      localStorage.setItem('token', data.token || null);
+      setToken(data?.token || null);
+      localStorage.setItem('token', data?.token || '');
       return router.push('/');
     } catch (err) {
       console.log(`create account error: `, err);
@@ -92,7 +93,7 @@ export const useApi = () => {
       });
 
       setToken(data.token || null);
-      localStorage.setItem('token', data.token || null);
+      localStorage.setItem('token', data.token || '');
       return router.push('/');
     } catch (err) {
       console.log(err.message || 'login error');
@@ -115,27 +116,33 @@ export const useApi = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setToken(data.token);
-      localStorage.setItem('token', data.token || null);
+      localStorage.setItem('token', data.token || '');
     } catch (err) {
       console.log(`refresh token error: `, err);
     }
   };
 
   const isTokenExpired = () => {
-    if (!token) return true;
-    const { exp } = jwt.decode(token);
+    if (tokenReady) {
+      if (token) {
+        const { exp } = jwt.decode(token);
+        return exp < Date.now() / 1000;
+      }
 
-    return exp < Date.now() / 1000;
+      return true;
+    }
   };
 
   const isTokenRefreshNeeded = () => {
-    if (!token) return false;
+    if (tokenReady) {
+      if (!token) return false;
 
-    const { exp } = jwt.decode(token);
-    const currentTime = Date.now() / 1000;
-    const refreshThreshold = exp * 0.7;
+      const { exp } = jwt.decode(token);
+      const currentTime = Date.now() / 1000;
+      const refreshThreshold = exp * 0.7;
 
-    return currentTime < refreshThreshold;
+      return currentTime < refreshThreshold;
+    }
   };
 
   const addCard = async (row, text) => {
