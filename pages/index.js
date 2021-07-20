@@ -2,7 +2,6 @@ import { useState, useEffect, useContext } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { AppContext } from '../context/AppContext';
-import Loader from '../components/Loader';
 import CardHolder from '../components/cards/CardHolder';
 import { DragDropContext } from 'react-beautiful-dnd';
 import { Box, SimpleGrid } from '@chakra-ui/react';
@@ -43,8 +42,6 @@ export default function Home() {
   if (!isAuthenticated) {
     router.push('/users/auth');
   }
-
-  if (loading) return <Loader />;
 
   if (!isAuthenticated) {
     return null;
