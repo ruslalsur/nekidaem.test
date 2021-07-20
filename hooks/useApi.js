@@ -170,9 +170,6 @@ export const useApi = () => {
         },
       });
 
-      console.log(`updateCard: `, data);
-      console.log(`destination: `, destination);
-
       setCards(
         cards.map((item) =>
           item.id == draggableId

@@ -2,7 +2,6 @@ import { useState, useEffect, useContext } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { AppContext } from '../context/AppContext';
-import styles from '../styles/Home.module.css';
 import Loader from '../components/Loader';
 import CardHolder from '../components/cards/CardHolder';
 import { DragDropContext } from 'react-beautiful-dnd';

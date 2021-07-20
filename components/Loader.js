@@ -5,8 +5,8 @@ export default function Loader() {
     <Flex height='90vh' alignItems='center' justifyContent='center'>
       <Flex
         direction='column'
-        background='blackAlpha.200'
-        p={20}
+        background='blackAlpha.50'
+        p={10}
         rounded={6}
         justifyContent='center'
         alignItems='center'
