@@ -1,6 +1,6 @@
 import { ChakraProvider } from '@chakra-ui/react';
-import { AuthContext } from '../context/AuthContext';
-import { useNekidaemApi } from '../hooks/useNekidaemApi';
+import { AppContext } from '../context/AppContext';
+import { useApi } from '../hooks/useApi';
 import Layout from '../components/Layout';
 import '../styles/globals.css';
 
@@ -13,7 +13,12 @@ function MyApp({ Component, pageProps }) {
     createAccount,
     login,
     logout,
-  } = useNekidaemApi();
+    cards,
+    setCards,
+    deleteCard,
+    updateCard,
+    addCard,
+  } = useApi();
 
   let isAuthenticated = false;
   const hasToken = !!token;
@@ -27,8 +32,10 @@ function MyApp({ Component, pageProps }) {
 
   return (
     <ChakraProvider>
-      <AuthContext.Provider
+      <AppContext.Provider
         value={{
+          cards,
+          setCards,
           token,
           tokenReady,
           loading,
@@ -36,12 +43,15 @@ function MyApp({ Component, pageProps }) {
           login,
           logout,
           isAuthenticated,
+          deleteCard,
+          updateCard,
+          addCard,
         }}
       >
         <Layout>
           <Component {...pageProps} />
         </Layout>
-      </AuthContext.Provider>
+      </AppContext.Provider>
     </ChakraProvider>
   );
 }

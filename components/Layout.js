@@ -1,17 +1,15 @@
 import { Container, Flex } from '@chakra-ui/react';
+import { AppContext } from '../context/AppContext';
+import { useContext } from 'react';
 import Navbar from './Navbar';
 
 export default function Layout({ children }) {
+  const { isAuthenticated, logout } = useContext(AppContext);
   return (
     <>
-      <Navbar />
+      {isAuthenticated && <Navbar />}
       <Container maxW='container.lg'>
-        <Flex
-          pt='54px'
-          height='100vh'
-          alignItems='center'
-          justifyContent='center'
-        >
+        <Flex height='100%' justifyContent='center'>
           <main>{children}</main>
         </Flex>
       </Container>

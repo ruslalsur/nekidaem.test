@@ -4,10 +4,11 @@ import jwt from 'jsonwebtoken';
 import axios from 'axios';
 import { API_BASE_URL } from '../constants';
 
-export const useNekidaemApi = () => {
+export const useApi = () => {
   const router = useRouter();
   const [token, setToken] = useState(null);
   const [tokenReady, setTokenReady] = useState(false);
+  const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(false);
 
   axios.defaults.baseURL = API_BASE_URL;
@@ -28,6 +29,23 @@ export const useNekidaemApi = () => {
     setTokenReady(true);
   }, []);
 
+  useEffect(() => {
+    const getCards = async () => {
+      try {
+        const data = await request({
+          method: 'get',
+          url: `/cards/`,
+          headers: {
+            Authorization: `JWT ${token}`,
+          },
+        });
+        return setCards(data);
+      } catch (err) {}
+    };
+
+    if (tokenReady) getCards();
+  }, [token, tokenReady]);
+
   const request = async (config) => {
     setLoading(true);
 
@@ -38,7 +56,7 @@ export const useNekidaemApi = () => {
       return data;
     } catch (err) {
       setLoading(false);
-      console.log(`error: `, err);
+      console.log(err.message || `request error`);
     }
   };
 
@@ -120,7 +138,75 @@ export const useNekidaemApi = () => {
     return currentTime < refreshThreshold;
   };
 
+  const addCard = async (row, text) => {
+    try {
+      const data = await request({
+        method: 'post',
+        url: `/cards/`,
+        data: {
+          row,
+          text,
+        },
+        headers: {
+          Authorization: `JWT ${token}`,
+        },
+      });
+
+      setCards([...cards, data]);
+    } catch (err) {}
+  };
+
+  const updateCard = async (draggableId, destination) => {
+    try {
+      const data = await request({
+        method: 'patch',
+        url: `/cards/${draggableId}/`,
+        data: {
+          row: destination.droppableId,
+          seq_num: destination.index,
+        },
+        headers: {
+          Authorization: `JWT ${token}`,
+        },
+      });
+
+      console.log(`updateCard: `, data);
+      console.log(`destination: `, destination);
+
+      setCards(
+        cards.map((item) =>
+          item.id == draggableId
+            ? {
+                ...item,
+                row: destination.droppableId,
+                seq_num: destination.index,
+              }
+            : item
+        )
+      );
+    } catch (err) {}
+  };
+
+  const deleteCard = async (id) => {
+    try {
+      await request({
+        method: 'delete',
+        url: `/cards/${id}/`,
+        headers: {
+          Authorization: `JWT ${token}`,
+        },
+      });
+
+      setCards(cards.filter((item) => item.id != id));
+    } catch (err) {}
+  };
+
   return {
+    cards,
+    setCards,
+    deleteCard,
+    updateCard,
+    addCard,
     token,
     tokenReady,
     isTokenExpired,

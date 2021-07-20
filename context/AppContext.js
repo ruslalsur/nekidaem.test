@@ -2,9 +2,14 @@ import { createContext } from 'react';
 
 function noop() {}
 
-export const AuthContext = createContext({
+export const AppContext = createContext({
   token: null,
   loading: false,
+  cards: [],
+  setCards: noop,
+  deleteCard: noop,
+  updateCard: noop,
+  addCard: noop,
   createAccount: noop,
   login: noop,
   logout: noop,

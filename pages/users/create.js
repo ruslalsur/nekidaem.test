@@ -1,13 +1,22 @@
 import Head from 'next/head';
+import NextLink from 'next/link';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { useContext } from 'react';
-import { AuthContext } from '../../context/AuthContext';
-import { Box, Button, Flex, Heading, Input, Text } from '@chakra-ui/react';
+import { AppContext } from '../../context/AppContext';
+import {
+  Box,
+  Button,
+  Flex,
+  Heading,
+  Input,
+  Text,
+  Link,
+} from '@chakra-ui/react';
 import Loader from '../../components/Loader';
 
 export default function Create() {
-  const { loading, createAccount } = useContext(AuthContext);
+  const { loading, createAccount } = useContext(AppContext);
 
   const { handleSubmit, handleChange, handleBlur, values, touched, errors } =
     useFormik({
@@ -51,7 +60,7 @@ export default function Create() {
   if (loading) return <Loader size='md' />;
 
   return (
-    <>
+    <Flex height='100vh' alignItems='center' justifyContent='center'>
       <Head>
         <title>Users | Create</title>
       </Head>
@@ -138,8 +147,16 @@ export default function Create() {
           <Button colorScheme='teal' mt={7} mb={2} type='submit'>
             Create
           </Button>
+          <Flex justifyContent='center'>
+            <Text>
+              or{' '}
+              <NextLink href='/users/auth'>
+                <Link color='teal.500'>back to the log in</Link>
+              </NextLink>
+            </Text>
+          </Flex>
         </Flex>
       </form>
-    </>
+    </Flex>
   );
 }
