@@ -22,9 +22,8 @@ function MyApp({ Component, pageProps }) {
   } = useApi();
 
   let isAuthenticated = false;
-  const hasToken = !!token;
   if (tokenIsReady) {
-    if (hasToken && !isTokenExpired()) isAuthenticated = true;
+    if (!!token && !isTokenExpired()) isAuthenticated = true;
   }
 
   if (!tokenIsReady) {

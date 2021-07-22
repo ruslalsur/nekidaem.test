@@ -58,6 +58,9 @@ export const useApi = () => {
 
   useEffect(() => {
     setToken(localStorage.getItem('token'));
+    if (isTokenExpired()) {
+      logout();
+    }
     setTokenIsReady(true);
   }, []);
 
@@ -126,7 +129,28 @@ export const useApi = () => {
     localStorage.removeItem('token');
   };
 
-  const refreshToken = async (token) => {
+  const isTokenExpired = () => {
+    try {
+      const { exp } = jwt.decode(token);
+      return exp < Date.now() / 1000;
+    } catch (error) {
+      return false;
+    }
+  };
+
+  const isTokenRefreshNeeded = (token) => {
+    try {
+      const { exp } = jwt.decode(token);
+      const currentTime = Date.now() / 1000;
+      const refreshThreshold = exp * 0.7;
+
+      return currentTime < refreshThreshold;
+    } catch (error) {
+      return false;
+    }
+  };
+
+  const refreshToken = async () => {
     try {
       const data = await request({
         method: 'post',
@@ -136,33 +160,13 @@ export const useApi = () => {
         },
         headers: { Authorization: `Bearer ${token}` },
       });
-      setToken(data.token);
-      localStorage.setItem('token', data.token || '');
+
+      if (!!data) {
+        setToken(data.token);
+        localStorage.setItem('token', data.token);
+      }
     } catch (err) {
       console.log(`refresh token error: `, err);
-    }
-  };
-
-  const isTokenExpired = () => {
-    if (tokenIsReady) {
-      if (token) {
-        const { exp } = jwt.decode(token);
-        return exp < Date.now() / 1000;
-      }
-
-      return true;
-    }
-  };
-
-  const isTokenRefreshNeeded = () => {
-    if (tokenIsReady) {
-      if (!token) return false;
-
-      const { exp } = jwt.decode(token);
-      const currentTime = Date.now() / 1000;
-      const refreshThreshold = exp * 0.7;
-
-      return currentTime < refreshThreshold;
     }
   };
 
