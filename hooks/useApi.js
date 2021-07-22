@@ -39,15 +39,19 @@ export const useApi = () => {
       console.log(`error: `, error);
 
       if (error.response) {
-        const { data, status } = error.response;
+        const { data, status, statusText } = error.response;
+
+        if (statusText === 'Unauthorized') {
+          logout();
+        }
 
         let message = Object.values(data);
         message = Array.isArray(message) ? message.join('\n') : message;
 
         showMessages({ title: status, text: message });
-        console.log(error?.response);
-      } else if (error?.request) {
-        showMessages({ title: 'Request error', text: error?.request });
+        console.log(error.response);
+      } else if (error.request) {
+        showMessages({ title: 'Request error', text: error.request });
         console.log(error?.request);
       } else {
         showMessages({ title: 'Error', text: error });
@@ -182,12 +186,27 @@ export const useApi = () => {
         Authorization: `JWT ${token}`,
       },
     });
+
     if (!!data) {
       setCards([...cards, data]);
     }
   };
 
   const updateCard = async (draggableId, destination) => {
+    const cardsCache = [...cards];
+
+    setCards(
+      cards.map((item) =>
+        item.id == draggableId
+          ? {
+              ...item,
+              row: destination.droppableId,
+              seq_num: destination.index,
+            }
+          : item
+      )
+    );
+
     const data = await request({
       method: 'patch',
       url: `/cards/${draggableId}/`,
@@ -200,22 +219,14 @@ export const useApi = () => {
       },
     });
 
-    if (!!data) {
-      setCards(
-        cards.map((item) =>
-          item.id == draggableId
-            ? {
-                ...item,
-                row: destination.droppableId,
-                seq_num: destination.index,
-              }
-            : item
-        )
-      );
+    if (!!!data) {
+      setCards(cardsCache);
     }
   };
 
   const deleteCard = async (id) => {
+    const cardsCache = [...cards];
+    setCards(cards.filter((item) => item.id != id));
     const data = await request({
       method: 'delete',
       url: `/cards/${id}/`,
@@ -224,8 +235,8 @@ export const useApi = () => {
       },
     });
 
-    if (typeof data !== undefined) {
-      setCards(cards.filter((item) => item.id != id));
+    if (typeof data === undefined) {
+      setCards(cardsCache);
     }
   };
 

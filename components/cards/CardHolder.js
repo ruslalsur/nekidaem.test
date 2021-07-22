@@ -37,6 +37,8 @@ export default function CardHolder({ id, title, color, holderCards }) {
   return (
     <Box minWidth='180px'>
       <Flex
+        borderTopRightRadius={4}
+        borderTopLeftRadius={4}
         background={color}
         h='40px'
         px={2}
@@ -53,7 +55,12 @@ export default function CardHolder({ id, title, color, holderCards }) {
         </Badge>
       </Flex>
 
-      <Flex direction='column' borderColor={color} borderWidth='2px'>
+      <Flex
+        direction='column'
+        minH='50px'
+        borderColor={color}
+        borderWidth='2px'
+      >
         <Droppable droppableId={id}>
           {(provided, snapshot) => (
             <Box p={2} ref={provided.innerRef}>
@@ -66,19 +73,29 @@ export default function CardHolder({ id, title, color, holderCards }) {
             </Box>
           )}
         </Droppable>
-        <Collapse in={isOpen} animateOpacity>
-          <Box color='purple.600' p={2}>
-            <Textarea
-              value={inputText}
-              onChange={handleTextArea}
-              placeholder='Input text for new cards ...'
-            />
-          </Box>
-        </Collapse>
       </Flex>
+      <Collapse in={isOpen} animateOpacity>
+        <Box
+          color='purple.600'
+          mt={2}
+          borderColor='purple.500'
+          borderWidth='2px'
+          borderBottomLeftRadius={4}
+          borderBottomRightRadius={4}
+        >
+          <Textarea
+            p={2}
+            value={inputText}
+            variant='unstyled'
+            onChange={handleTextArea}
+            placeholder='Input text for new cards ...'
+          />
+        </Box>
+      </Collapse>
 
       <Button
-        mt={1}
+        mt={2}
+        ml={0.5}
         onClick={() => handleAddBtn(id)}
         size='xs'
         colorScheme='purple'
