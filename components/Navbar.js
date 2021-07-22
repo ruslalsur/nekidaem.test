@@ -2,11 +2,9 @@ import NextLink from 'next/link';
 import { Container, Flex, Box, Heading, Button, Link } from '@chakra-ui/react';
 import { AppContext } from '../context/AppContext';
 import { useContext } from 'react';
-import { useRouter } from 'next/router';
 
 export default function Navbar() {
-  const router = useRouter();
-  const { isAuthenticated, logout } = useContext(AppContext);
+  const { logout } = useContext(AppContext);
 
   const handleLogout = () => {
     logout();

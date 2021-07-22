@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import jwt from 'jsonwebtoken';
 import axios from 'axios';
@@ -7,9 +7,10 @@ import { API_BASE_URL } from '../constants';
 export const useApi = () => {
   const router = useRouter();
   const [token, setToken] = useState('');
-  const [tokenReady, setTokenReady] = useState(false);
+  const [tokenIsReady, setTokenIsReady] = useState(false);
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [messages, setMessages] = useState(null);
 
   axios.defaults.baseURL = API_BASE_URL;
   axios.interceptors.request.use(
@@ -24,79 +25,99 @@ export const useApi = () => {
     }
   );
 
+  const request = useCallback(async (config) => {
+    setLoading(true);
+
+    try {
+      const { data } = await axios(config);
+      setMessages(null);
+      setLoading(false);
+
+      return data;
+    } catch (error) {
+      setLoading(false);
+      console.log(`error: `, error);
+
+      if (error.response) {
+        const { data, status } = error.response;
+
+        let message = Object.values(data);
+        message = Array.isArray(message) ? message.join('\n') : message;
+
+        showMessages({ title: status, text: message });
+        console.log(error?.response);
+      } else if (error?.request) {
+        showMessages({ title: 'Request error', text: error?.request });
+        console.log(error?.request);
+      } else {
+        showMessages({ title: 'Error', text: error });
+        console.log('Error', error);
+      }
+    }
+  }, []);
+
   useEffect(() => {
     setToken(localStorage.getItem('token'));
-    setTokenReady(true);
+    setTokenIsReady(true);
   }, []);
 
   useEffect(() => {
     const getCards = async () => {
-      try {
-        const data = await request({
-          method: 'get',
-          url: `/cards/`,
-          headers: {
-            Authorization: `JWT ${token}`,
-          },
-        });
-        return setCards(data);
-      } catch (err) {}
-    };
-
-    if (tokenReady) getCards();
-  }, [token, tokenReady]);
-
-  const request = async (config) => {
-    setLoading(true);
-
-    try {
-      const response = await axios(config);
-
-      setLoading(false);
-
-      return response.data;
-    } catch (err) {
-      setLoading(false);
-      console.log(err.message || `request error`);
-    }
-  };
-
-  const createAccount = async (username, email, password) => {
-    try {
       const data = await request({
-        method: 'post',
-        url: `/users/create/`,
-        data: {
-          username,
-          email,
-          password,
+        method: 'get',
+        url: `/cards/`,
+        headers: {
+          Authorization: `JWT ${token}`,
         },
       });
 
-      setToken(data?.token || null);
-      localStorage.setItem('token', data?.token || '');
-      return router.push('/');
-    } catch (err) {
-      console.log(`create account error: `, err);
+      setCards(data);
+    };
+
+    token && getCards();
+  }, [request, tokenIsReady, token]);
+
+  const showMessages = (msg, duration = 3000) => {
+    setMessages(msg);
+    setTimeout(() => {
+      setMessages(null);
+    }, duration);
+  };
+
+  const authorize = (accesToken) => {
+    setToken(accesToken);
+    localStorage.setItem('token', accesToken);
+    router.push('/');
+  };
+
+  const createAccount = async (username, email, password) => {
+    const data = await request({
+      method: 'post',
+      url: `/users/create/`,
+      data: {
+        username,
+        email,
+        password,
+      },
+    });
+
+    if (!!data.token) {
+      authorize(data.token);
     }
   };
 
   const login = async (username, password) => {
-    try {
-      const data = await request({
-        method: 'post',
-        url: `/users/login/`,
-        data: {
-          username,
-          password,
-        },
-      });
+    const data = await request({
+      method: 'post',
+      url: `/users/login/`,
+      data: {
+        username,
+        password,
+      },
+    });
 
-      setToken(data.token || null);
-      localStorage.setItem('token', data.token || '');
-      return router.push('/');
-    } catch (err) {
-      console.log(err.message || 'login error');
+    if (!!data.token) {
+      authorize(data.token);
     }
   };
 
@@ -123,7 +144,7 @@ export const useApi = () => {
   };
 
   const isTokenExpired = () => {
-    if (tokenReady) {
+    if (tokenIsReady) {
       if (token) {
         const { exp } = jwt.decode(token);
         return exp < Date.now() / 1000;
@@ -134,7 +155,7 @@ export const useApi = () => {
   };
 
   const isTokenRefreshNeeded = () => {
-    if (tokenReady) {
+    if (tokenIsReady) {
       if (!token) return false;
 
       const { exp } = jwt.decode(token);
@@ -146,37 +167,36 @@ export const useApi = () => {
   };
 
   const addCard = async (row, text) => {
-    try {
-      const data = await request({
-        method: 'post',
-        url: `/cards/`,
-        data: {
-          row,
-          text,
-        },
-        headers: {
-          Authorization: `JWT ${token}`,
-        },
-      });
-
+    const data = await request({
+      method: 'post',
+      url: `/cards/`,
+      data: {
+        row,
+        text,
+      },
+      headers: {
+        Authorization: `JWT ${token}`,
+      },
+    });
+    if (!!data) {
       setCards([...cards, data]);
-    } catch (err) {}
+    }
   };
 
   const updateCard = async (draggableId, destination) => {
-    try {
-      const data = await request({
-        method: 'patch',
-        url: `/cards/${draggableId}/`,
-        data: {
-          row: destination.droppableId,
-          seq_num: destination.index,
-        },
-        headers: {
-          Authorization: `JWT ${token}`,
-        },
-      });
+    const data = await request({
+      method: 'patch',
+      url: `/cards/${draggableId}/`,
+      data: {
+        row: destination.droppableId,
+        seq_num: destination.index,
+      },
+      headers: {
+        Authorization: `JWT ${token}`,
+      },
+    });
 
+    if (!!data) {
       setCards(
         cards.map((item) =>
           item.id == draggableId
@@ -188,35 +208,36 @@ export const useApi = () => {
             : item
         )
       );
-    } catch (err) {}
+    }
   };
 
   const deleteCard = async (id) => {
-    try {
-      await request({
-        method: 'delete',
-        url: `/cards/${id}/`,
-        headers: {
-          Authorization: `JWT ${token}`,
-        },
-      });
+    const data = await request({
+      method: 'delete',
+      url: `/cards/${id}/`,
+      headers: {
+        Authorization: `JWT ${token}`,
+      },
+    });
 
+    if (typeof data !== undefined) {
       setCards(cards.filter((item) => item.id != id));
-    } catch (err) {}
+    }
   };
 
   return {
     cards,
-    setCards,
     deleteCard,
     updateCard,
     addCard,
     token,
-    tokenReady,
+    tokenIsReady,
     isTokenExpired,
     createAccount,
     login,
     logout,
     loading,
+    messages,
+    showMessages,
   };
 };

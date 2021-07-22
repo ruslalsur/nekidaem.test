@@ -1,35 +1,33 @@
 import { ChakraProvider } from '@chakra-ui/react';
 import { AppContext } from '../context/AppContext';
 import { useApi } from '../hooks/useApi';
-import { useMessage } from '../hooks/useMessage';
 import Layout from '../components/Layout';
 import '../styles/globals.css';
 
 function MyApp({ Component, pageProps }) {
   const {
     token,
-    tokenReady,
+    tokenIsReady,
     isTokenExpired,
     loading,
     createAccount,
     login,
     logout,
     cards,
-    setCards,
     deleteCard,
     updateCard,
     addCard,
+    messages,
+    showMessages,
   } = useApi();
-
-  const { message } = useMessage();
 
   let isAuthenticated = false;
   const hasToken = !!token;
-  if (tokenReady) {
+  if (tokenIsReady) {
     if (hasToken && !isTokenExpired()) isAuthenticated = true;
   }
 
-  if (!tokenReady) {
+  if (!tokenIsReady) {
     return null;
   }
 
@@ -38,11 +36,9 @@ function MyApp({ Component, pageProps }) {
       <AppContext.Provider
         value={{
           cards,
-          setCards,
           token,
-          tokenReady,
+          tokenIsReady,
           loading,
-          message,
           createAccount,
           login,
           logout,
@@ -50,6 +46,8 @@ function MyApp({ Component, pageProps }) {
           deleteCard,
           updateCard,
           addCard,
+          messages,
+          showMessages,
         }}
       >
         <Layout>

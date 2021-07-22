@@ -5,7 +5,6 @@ import {
   Flex,
   Box,
   Heading,
-  Text,
   Button,
   VStack,
   Badge,

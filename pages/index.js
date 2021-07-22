@@ -8,8 +8,7 @@ import { Box, SimpleGrid } from '@chakra-ui/react';
 
 export default function Home() {
   const router = useRouter();
-  const { loading, isAuthenticated, updateCard, cards } =
-    useContext(AppContext);
+  const { isAuthenticated, updateCard, cards } = useContext(AppContext);
 
   const [cards0, setCards0] = useState([]);
   const [cards1, setCards1] = useState([]);

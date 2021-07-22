@@ -49,11 +49,7 @@ export default function Create() {
           .oneOf([yup.ref('password'), null], 'Passwords must match'),
       }),
       onSubmit: ({ username, email, password }) => {
-        try {
-          createAccount(username, email, password);
-        } catch (err) {
-          console.log(err.message || 'user create error');
-        }
+        createAccount(username, email, password);
       },
     });
 

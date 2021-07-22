@@ -1,7 +1,6 @@
 import Head from 'next/head';
 import NextLink from 'next/link';
 import { useContext } from 'react';
-import { useRouter } from 'next/router';
 import { AppContext } from '../../context/AppContext';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
@@ -17,8 +16,8 @@ import {
 import Loader from '../../components/Loader';
 
 export default function Auth() {
-  const router = useRouter();
   const { loading, login } = useContext(AppContext);
+
   const { handleSubmit, handleChange, handleBlur, values, touched, errors } =
     useFormik({
       initialValues: {
@@ -29,12 +28,8 @@ export default function Auth() {
         username: yup.string().required('required'),
         password: yup.string().required('required'),
       }),
-      onSubmit: ({ username, password }) => {
-        try {
-          login(username, password);
-        } catch (error) {
-          console.log(err.message || 'user login error');
-        }
+      onSubmit: async ({ username, password }) => {
+        login(username, password);
       },
     });
 

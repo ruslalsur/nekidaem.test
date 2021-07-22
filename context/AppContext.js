@@ -5,9 +5,9 @@ function noop() {}
 export const AppContext = createContext({
   token: '',
   loading: false,
-  message: noop,
+  messages: {},
+  showMessages: noop,
   cards: [],
-  setCards: noop,
   deleteCard: noop,
   updateCard: noop,
   addCard: noop,
