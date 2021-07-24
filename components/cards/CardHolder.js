@@ -28,7 +28,7 @@ export default function CardHolder({ id, title, color, holderCards }) {
     if (!isOpen) {
       onToggle();
     } else {
-      if (inputText.trim() !== '') addCard(id, inputText);
+      if (inputText.trim().length) addCard(id, inputText);
       onToggle();
       setInputText('');
     }

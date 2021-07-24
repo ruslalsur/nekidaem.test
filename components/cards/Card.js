@@ -24,16 +24,15 @@ export default function Card({ card, index }) {
           >
             <Button
               position='absolute'
-              top='-3px'
+              top='3px'
               right='2px'
-              mt={1}
               size='xs'
               fontSize='1.1rem'
               colorScheme='red'
               variant='ghost'
               onClick={() => deleteCard(card.id)}
             >
-              x
+              &times;
             </Button>
 
             <Box isTruncated>

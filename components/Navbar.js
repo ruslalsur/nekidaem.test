@@ -26,7 +26,7 @@ export default function Navbar() {
             <NextLink href='/'>
               <Link>
                 <Heading as='h3' size='lg' color='blackAlpha.700'>
-                  <span style={{ color: '#00A4FF' }}>NE</span>kidaem test
+                  <span style={{ color: '#00A4FF' }}>KANBAN</span>BOARD
                 </Heading>
               </Link>
             </NextLink>
